@@ -10,6 +10,7 @@ import { cn } from "@/lib/format";
 import { usePendingApprovalCount } from "@/lib/queries";
 import { Logo } from "./logo";
 import { NAV_ITEMS, isActive, primaryTabs, type NavItem } from "./nav";
+import { InstallButton } from "./install-button";
 import { ThemeToggle } from "./theme-toggle";
 import { buttonClasses } from "./ui/button";
 
@@ -213,6 +214,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           </div>
           <div className="mt-4 flex flex-col gap-3 border-t border-border px-2 pt-4">
             <UserChip />
+            <InstallButton className="[&>button]:w-full" />
             <div className="flex items-center justify-between">
               <ThemeToggle />
               <button
@@ -239,6 +241,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             <MockBadge />
           </div>
           <div className="flex items-center gap-1">
+            <InstallButton />
             <ThemeToggle />
             {status === "anonymous" && (
               <Link href="/" className={buttonClasses({ size: "sm" })}>

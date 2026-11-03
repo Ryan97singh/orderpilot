@@ -37,7 +37,7 @@ const FLOW: { who: string; what: string; detail: string }[] = [
 ];
 
 const AZURE: { icon: LucideIcon; name: string; role: string }[] = [
-  { icon: Globe, name: "Static Web Apps", role: "Hosts the Next.js PWA (or Container Apps for the standalone server)." },
+  { icon: Globe, name: "Container Apps (web)", role: "Runs the Next.js PWA as a standalone server next to the APIs (Static Web Apps is an alternative)." },
   { icon: Cloud, name: "Container Apps", role: "Runs core-api and ai-service containers with scale-to-zero and revisions." },
   { icon: Database, name: "Azure SQL", role: "Outlets, products, inventory, promotions and orders (Flyway migrations)." },
   { icon: Search, name: "Azure AI Search", role: "Indexes the policy documents for retrieval with citations." },

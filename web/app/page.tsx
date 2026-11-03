@@ -1,6 +1,7 @@
 import { BookOpenCheck, LayoutDashboard, ShieldCheck, Smartphone, Workflow } from "lucide-react";
 import Link from "next/link";
 import { Suspense } from "react";
+import { InstallButton } from "@/components/install-button";
 import { Logo } from "@/components/logo";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { RolePicker } from "./role-picker";
@@ -37,10 +38,11 @@ export default function LandingPage() {
         <nav aria-label="Site" className="flex items-center gap-1">
           <Link
             href="/architecture"
-            className="rounded-lg px-3 py-2 text-sm font-medium text-muted transition-colors hover:bg-surface-muted hover:text-foreground"
+            className="rounded-lg px-3 py-2 text-sm font-medium text-muted transition-colors hover:bg-surface-muted hover:text-foreground max-sm:hidden"
           >
             Architecture
           </Link>
+          <InstallButton />
           <ThemeToggle />
         </nav>
       </header>

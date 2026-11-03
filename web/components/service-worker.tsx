@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect } from "react";
+// Imported here (mounted in the root layout) so the install-prompt listener is attached as early as possible.
+import "@/lib/install";
 
 /**
  * Registers public/sw.js in production builds. Skipped in `next dev`, where a caching

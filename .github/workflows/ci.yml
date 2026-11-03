@@ -64,7 +64,12 @@ jobs:
           subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
       - name: Build and push image
         run: |
-          az acr build -r ${{ vars.ACR_NAME }} -t orderpilot-${{ matrix.service }}:${{ github.sha }} ${{ matrix.service }}
+          # NEXT_PUBLIC_* values are baked into the web bundle at build time, so pass the API URLs as build args.
+          extra=""
+          if [ "${{ matrix.service }}" = "web" ]; then
+            extra="--build-arg NEXT_PUBLIC_CORE_API_URL=${{ vars.CORE_API_URL }} --build-arg NEXT_PUBLIC_AI_API_URL=${{ vars.AI_API_URL }} --build-arg NEXT_PUBLIC_AUTH_MODE=entra --build-arg NEXT_PUBLIC_ENTRA_CLIENT_ID=${{ vars.ENTRA_CLIENT_ID }} --build-arg NEXT_PUBLIC_ENTRA_TENANT_ID=${{ vars.AZURE_TENANT_ID }}"
+          fi
+          az acr build -r ${{ vars.ACR_NAME }} -t orderpilot-${{ matrix.service }}:${{ github.sha }} $extra ${{ matrix.service }}
       - name: Roll out
         run: |
           az containerapp update -g ${{ vars.AZURE_RESOURCE_GROUP }} -n orderpilot-${{ matrix.service }} \

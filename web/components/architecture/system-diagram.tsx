@@ -101,7 +101,7 @@ export function SystemDiagram() {
 
       {/* Client */}
       <Box x={20} y={36} w={210} h={64} title="Sales rep · Manager" lines={["Phone or laptop"]} />
-      <Box x={20} y={150} w={210} h={168} accent title="Next.js PWA" lines={["App Router · TypeScript", "TanStack Query · Tailwind", "Service worker (offline)", "MSAL (Entra ID)", "Vercel / Static Web Apps"]} />
+      <Box x={20} y={150} w={210} h={168} accent title="Next.js PWA" lines={["App Router · TypeScript", "TanStack Query · Tailwind", "Service worker (offline)", "MSAL (Entra ID)", "Vercel / Container Apps"]} />
       <Box x={20} y={420} w={210} h={96} title="Microsoft Entra ID" lines={["App registrations", "App roles: REP · MANAGER"]} />
 
       {/* Services */}
