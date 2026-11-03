@@ -1,0 +1,53 @@
+# Local full stack: docker compose up --build
+# Web on http://localhost:3000, core-api on :8080 (Swagger at /swagger-ui.html), ai-service on :8000.
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: orderpilot
+      POSTGRES_USER: orderpilot
+      POSTGRES_PASSWORD: orderpilot
+    ports: ["5432:5432"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U orderpilot"]
+      interval: 5s
+      retries: 10
+
+  core-api:
+    build: ./core-api
+    environment:
+      SPRING_PROFILES_ACTIVE: postgres
+      DATABASE_URL: jdbc:postgresql://postgres:5432/orderpilot
+      DB_USER: orderpilot
+      DB_PASSWORD: orderpilot
+      AUTH_MODE: demo
+      JWT_SECRET: ${JWT_SECRET:-orderpilot-dev-secret-change-me-please-32b}
+      LLM_PROVIDER: ${LLM_PROVIDER:-mock}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      CORS_ORIGINS: http://localhost:3000
+    ports: ["8080:8080"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  ai-service:
+    build: ./ai-service
+    environment:
+      CORE_API_URL: http://core-api:8080
+      AUTH_MODE: demo
+      JWT_SECRET: ${JWT_SECRET:-orderpilot-dev-secret-change-me-please-32b}
+      LLM_PROVIDER: ${LLM_PROVIDER:-mock}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      SEARCH_PROVIDER: local
+      CORS_ORIGINS: http://localhost:3000
+    ports: ["8000:8000"]
+    depends_on: [core-api]
+
+  web:
+    build:
+      context: ./web
+      args:
+        NEXT_PUBLIC_CORE_API_URL: http://localhost:8080
+        NEXT_PUBLIC_AI_API_URL: http://localhost:8000
+    ports: ["3000:3000"]
+    depends_on: [core-api, ai-service]

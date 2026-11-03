@@ -1,0 +1,22 @@
+[project]
+name = "orderpilot-ai-service"
+version = "0.1.0"
+description = "OrderPilot AI microservice: LangGraph agent, knowledge search, Prompt Studio"
+requires-python = ">=3.12"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-q"
+filterwarnings = ["ignore::DeprecationWarning"]
+
+[tool.ruff]
+line-length = 110
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+ignore = ["SIM905"]
+
+[tool.ruff.lint.per-file-ignores]
+"app/agent/prompts.py" = ["E501"]

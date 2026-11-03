@@ -1,0 +1,19 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "prefix": { "value": "orderpilot" },
+    "coreApiImage": { "value": "<acr-name>.azurecr.io/orderpilot-core-api:latest" },
+    "aiServiceImage": { "value": "<acr-name>.azurecr.io/orderpilot-ai-service:latest" },
+    "webImage": { "value": "<acr-name>.azurecr.io/orderpilot-web:latest" },
+    "acrLoginServer": { "value": "<acr-name>.azurecr.io" },
+    "entraTenantId": { "value": "<tenant-guid>" },
+    "entraAudience": { "value": "api://orderpilot-api" },
+    "sqlAdminPassword": {
+      "reference": {
+        "keyVault": { "id": "/subscriptions/<sub>/resourceGroups/<rg>/providers/Microsoft.KeyVault/vaults/<bootstrap-vault>" },
+        "secretName": "orderpilot-sql-admin-password"
+      }
+    }
+  }
+}

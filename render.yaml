@@ -1,0 +1,28 @@
+# Render Blueprint for the free public demo of the Java core API
+# (Dashboard -> New -> Blueprint -> pick this repo). The demo profile uses an in-memory H2 database
+# seeded by Flyway on every start, so no database is needed. The AI service and the PWA run on Vercel.
+services:
+  - type: web
+    name: orderpilot-core-api
+    runtime: docker
+    plan: free
+    region: singapore
+    rootDir: core-api
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: demo
+      - key: AUTH_MODE
+        value: demo
+      - key: JWT_SECRET          # must be the same value as the ai-service JWT_SECRET on Vercel
+        sync: false
+      - key: CORS_ORIGINS        # the Vercel web URL, e.g. https://orderpilot-web.vercel.app
+        sync: false
+      - key: LLM_PROVIDER
+        value: claude
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: JAVA_OPTS
+        value: "-XX:MaxRAMPercentage=60 -XX:+UseSerialGC -Xss512k -XX:TieredStopAtLevel=1"

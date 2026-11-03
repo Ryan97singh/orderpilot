@@ -1,0 +1,71 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  core-api:
+    runs-on: ubuntu-latest
+    defaults: { run: { working-directory: core-api } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: '21', cache: maven }
+      - run: ./mvnw -B verify
+
+  ai-service:
+    runs-on: ubuntu-latest
+    defaults: { run: { working-directory: ai-service } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.12', cache: pip }
+      - run: pip install -r requirements.txt -r requirements-dev.txt
+      - run: pytest -q
+        env: { LLM_PROVIDER: mock }
+
+  web:
+    runs-on: ubuntu-latest
+    defaults: { run: { working-directory: web } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '22', cache: npm, cache-dependency-path: web/package-lock.json }
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm run build
+
+  infra:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile Bicep
+        run: az bicep build --file infra/azure/main.bicep
+
+  # Images are pushed to Azure Container Registry and rolled out to Container Apps only when the
+  # repository variable AZURE_DEPLOY_ENABLED is 'true' (uses OIDC federated credentials, no secrets).
+  deploy-azure:
+    if: github.ref == 'refs/heads/main' && vars.AZURE_DEPLOY_ENABLED == 'true'
+    needs: [core-api, ai-service, web, infra]
+    runs-on: ubuntu-latest
+    permissions: { id-token: write, contents: read }
+    strategy:
+      matrix:
+        service: [core-api, ai-service, web]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: azure/login@v2
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      - name: Build and push image
+        run: |
+          az acr build -r ${{ vars.ACR_NAME }} -t orderpilot-${{ matrix.service }}:${{ github.sha }} ${{ matrix.service }}
+      - name: Roll out
+        run: |
+          az containerapp update -g ${{ vars.AZURE_RESOURCE_GROUP }} -n orderpilot-${{ matrix.service }} \
+            --image ${{ vars.ACR_NAME }}.azurecr.io/orderpilot-${{ matrix.service }}:${{ github.sha }}
